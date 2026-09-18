@@ -464,48 +464,90 @@
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
     .js .reveal, .js .reveal.in { opacity: 1 !important; transform: none !important; }
-    .topbar, .lightbox, .avatar-zoom, .pub-card::after, .header::before { display: none !important; }
+    .topbar, .lightbox, .avatar-zoom, .pub-card::after, .header::before,
+    .pub-icon, .meter { display: none !important; }
 
     body { background: #fff; padding: 0; overflow: visible; }
     .page { max-width: none; }
 
-    /* the on-screen stacking breakpoints would otherwise collapse everything into
-       one narrow column and double the page count */
-    .layout { display: grid; grid-template-columns: 31% 1fr; gap: 6mm; }
-    .stack, .sidebar { gap: 4mm; }
+    /* monospace is the strongest "this is a web page" tell on paper —
+       the printed CV runs entirely on the serif + sans pair */
+    .contact-list, .tl-date, .edu-item .date, .edu-stat b, .info-row.cert .v,
+    .pill, .eyebrow, .sys-label, .tl-org .tag, .edu-tag, .pub-link, footer {
+      font-family: var(--sans);
+    }
 
-    .header { padding: 0 0 4mm; margin-bottom: 4mm; border: 0; border-bottom: 1.2pt solid var(--accent); border-radius: 0; gap: 6mm; }
-    .avatar { width: 68px; height: 68px; border-width: 2px; box-shadow: 0 0 0 1.5pt var(--accent); }
-    .avatar-btn { animation: none; opacity: 1; transform: none; }
-    .header .name, .header .title, .contact-list { animation: none; opacity: 1; transform: none; }
+    /* one flowing column: the sidebar becomes a compact band under the header,
+       so no column is left standing empty when the other runs long */
+    .layout { display: block; }
+    .stack { display: block; }
+    .sidebar { display: block; columns: 2; column-gap: 9mm; margin-bottom: 4mm; }
+    /* the skills card is far taller than the other three — letting it split at
+       group boundaries is what keeps the two columns level */
+    .sidebar > .card { break-inside: auto; margin-bottom: 3.5mm; }
+    .stack > .card { margin-top: 4mm; }
+
+    .header {
+      padding: 0 0 3.5mm; margin-bottom: 4mm; gap: 6mm;
+      border: 0; border-bottom: 1.4pt solid var(--accent); border-radius: 0;
+      align-items: flex-end;
+    }
+    .avatar { width: 62px; height: 62px; border: 0; box-shadow: 0 0 0 0.8pt var(--border); }
+    .avatar-btn, .header .name, .header .title, .contact-list { animation: none; opacity: 1; transform: none; }
     .header .title .dot { animation: none; }
+    .contact-list { font-size: var(--t-md); gap: 0.8mm; }
 
-    .card { border: 0; border-top: 0.8pt solid var(--border); border-radius: 0; padding: 3.5mm 0 0; box-shadow: none; }
-    .sidebar .card:first-child, .stack .card:first-child { border-top: 0; padding-top: 0; }
+    .card { border: 0; border-radius: 0; padding: 0; box-shadow: none; break-inside: auto; }
 
-    /* a tall card may flow across pages, but never split a single entry */
-    .card { break-inside: auto; }
+    /* section labels as engraved small caps rather than mono web chips */
+    .eyebrow, h2.section-title {
+      border-bottom: 0.5pt solid var(--border); padding-bottom: 1.2mm; margin-bottom: 2.4mm;
+    }
+    .eyebrow {
+      font-size: 7.5pt; font-weight: 700; letter-spacing: 0.15em; color: var(--accent);
+    }
+    h2.section-title { font-size: 12.5pt; }
+
+    /* skills read as lists; boxed chips waste a third of the page */
+    .pill-row { display: block; line-height: 1.55; }
+    .pill { display: inline; background: none; border: 0; padding: 0; border-radius: 0;
+            font-size: var(--t-md); color: var(--text); }
+    .pill:not(:last-child)::after { content: " · "; color: var(--faint); }
+    .skill-group { margin-bottom: 1.8mm; }
+    .skill-group .label { font-size: var(--t-sm); font-weight: 700; color: var(--accent); margin-bottom: 0.3mm; }
+
+    /* status tags: quiet outline, not a filled UI chip */
+    .tl-org .tag, .edu-tag {
+      background: none; border: 0.5pt solid var(--accent); color: var(--accent);
+      font-size: 6.5pt; font-weight: 700; letter-spacing: 0.07em; padding: 0.3mm 1.4mm; border-radius: 2pt;
+    }
+
+    /* the publication reads as a pulled-out passage, not a filled callout */
+    .pub-card { background: none; border: 0; border-left: 1.6pt solid var(--amber);
+                border-radius: 0; padding: 0 0 0 4mm; display: block; }
+    .pub-meta { font-weight: 700; }
+
+    .tl-date { font-size: var(--t-sm); font-weight: 700; }
+    .tl-date .dur { display: inline; margin: 0; color: var(--muted); font-weight: 700; }
+    .tl-item { padding-block: 2.4mm; }
+    .tl-item ul { gap: 1.1mm; padding-left: 4.5mm; }
+    .tl-org { margin-bottom: 1.5mm; }
+    .sys-group { padding-block: 1.8mm; grid-template-columns: 34mm 1fr; gap: 4mm; }
+    .sys-list { gap: 1.1mm; }
+    .sys-label { font-size: var(--t-md); }
+    .edu-item { padding-block: 1.8mm; }
+    .info-row { padding-block: 1mm; }
+    footer { margin-top: 4mm; }
+
+    /* never split a single entry, and never strand a heading at a page foot */
     .tl-item, .sys-group, .edu-item, .skill-group, .pub-card, .info-row, .lang-item {
       break-inside: avoid; page-break-inside: avoid;
     }
     h2.section-title, .eyebrow { break-after: avoid; page-break-after: avoid; }
-
-    .eyebrow { margin-bottom: 2mm; }
-    h2.section-title { margin-bottom: 2.5mm; }
-    .tl-item { padding-block: 2.5mm; }
-    .tl-item ul { gap: 1.2mm; padding-left: 4mm; }
-    .sys-group { padding-block: 2mm; }
-    .sys-list { gap: 1.2mm; }
-    .skill-group { margin-bottom: 2.5mm; }
-    .pill { padding: 1px 6px; border-radius: 4px; }
-    .pub-card { padding: 3mm; gap: 3mm; }
-    .edu-item { padding-block: 2mm; }
-    .info-row { padding-block: 1.2mm; }
-    .meter { display: none; }
-    footer { margin-top: 4mm; }
+    p, li { orphans: 2; widows: 2; }
 
     a { text-decoration: none; color: inherit; }
-    .pub-link::after { content: " (" attr(href) ")"; font-size: var(--t-micro); color: var(--faint); }
+    .pub-link::after { content: " (" attr(href) ")"; font-weight: 400; color: var(--faint); }
   }
 </style>
 <script>
