@@ -832,6 +832,19 @@
   })();
 
   (function initPrint() {
+    // the browser names the saved PDF after document.title — swap in an ASCII,
+    // recruiter-friendly filename for the duration of the print, then restore it
+    var PRINT_TITLE = 'CV-Truong-Quang-Dai-Software-Developer';
+    var savedTitle = null;
+
+    window.addEventListener('beforeprint', function () {
+      if (savedTitle === null) savedTitle = document.title;
+      document.title = PRINT_TITLE;
+    });
+    window.addEventListener('afterprint', function () {
+      if (savedTitle !== null) { document.title = savedTitle; savedTitle = null; }
+    });
+
     document.getElementById('print-btn').addEventListener('click', function () {
       window.print();
     });
