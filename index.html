@@ -441,7 +441,11 @@
   }
 
   /* ---------- print / A4 PDF ---------- */
-  @page { size: A4 portrait; margin: 11mm 12mm; }
+  /* 8mm vertical is below the height Chromium needs to draw its own print header and
+     footer (the date, the URL and "1/2"), so they are simply not rendered — while still
+     clearing the ~5mm edge that consumer printers cannot image. Measured threshold sits
+     between 8.25mm and 8.4mm; do not raise this without re-checking a printed PDF. */
+  @page { size: A4 portrait; margin: 8mm 12mm; }
 
   @media print {
     /* always print the light palette — a dark-mode visitor must not get an inked-black CV */
