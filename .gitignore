@@ -141,3 +141,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Personal source material — keep out of the public repo
+*.pdf
+631c11ec82b502eb5ba4.jpg
+avatar-large.png
+avatar.jpg
+cv1.txt
+cv2.txt
