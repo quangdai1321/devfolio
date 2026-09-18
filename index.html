@@ -127,6 +127,18 @@
   .lang-toggle button.active { background: var(--accent); color: var(--on-accent); }
   .lang-toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+  .print-btn {
+    flex: none; display: inline-flex; align-items: center; gap: 8px;
+    height: 42px; padding: 0 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow);
+    color: var(--muted); cursor: pointer;
+    font-family: var(--mono); font-size: var(--t-xs); font-weight: 500; letter-spacing: 0.04em;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .print-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .print-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .print-btn svg { flex: none; }
+
   .theme-btn {
     flex: none; width: 42px; height: 42px; border-radius: 50%;
     border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow);
@@ -428,15 +440,72 @@
     .contact-list { font-size: var(--t-micro); }
   }
 
-  /* ---------- print / PDF ---------- */
+  /* ---------- print / A4 PDF ---------- */
+  @page { size: A4 portrait; margin: 11mm 12mm; }
+
   @media print {
+    /* always print the light palette — a dark-mode visitor must not get an inked-black CV */
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+      color-scheme: light;
+      --bg: #fff; --surface: #fff; --surface-2: #f5f5f3;
+      --text: #141816; --muted: #414944; --faint: #5f675f;
+      --accent: #0d6152; --accent-soft: #e7f0eb; --on-accent: #fff;
+      --amber: #9c660f; --amber-soft: #faf2e0; --amber-ink: #6b430b; --on-amber: #fff;
+      --border: #d6d6d2; --shadow: none; --shadow-lg: none; --shimmer: transparent;
+
+      --t-micro: 6.5pt; --t-xs: 7pt;  --t-sm: 7.5pt; --t-md: 8pt;
+      --t-base:  8.6pt; --t-lg: 9pt;  --t-role: 10.5pt;
+      --t-title: 12pt;  --t-hero: 21pt;
+      --lh-tight: 1.15; --lh-snug: 1.3; --lh-normal: 1.35; --lh-relaxed: 1.5;
+      --measure: 100%;
+    }
+
+    /* keep the accent colours in the PDF instead of Chrome dropping every fill */
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
     .js .reveal, .js .reveal.in { opacity: 1 !important; transform: none !important; }
-    .topbar, .lightbox, .avatar-zoom { display: none !important; }
-    body { background: #fff; padding: 0; color: #000; }
-    .card, .header { box-shadow: none; border-color: #ccc; break-inside: avoid; page-break-inside: avoid; }
-    .sidebar { position: static; }
-    .pub-card::after, .header::before { display: none; }
+    .topbar, .lightbox, .avatar-zoom, .pub-card::after, .header::before { display: none !important; }
+
+    body { background: #fff; padding: 0; overflow: visible; }
+    .page { max-width: none; }
+
+    /* the on-screen stacking breakpoints would otherwise collapse everything into
+       one narrow column and double the page count */
+    .layout { display: grid; grid-template-columns: 31% 1fr; gap: 6mm; }
+    .stack, .sidebar { gap: 4mm; }
+
+    .header { padding: 0 0 4mm; margin-bottom: 4mm; border: 0; border-bottom: 1.2pt solid var(--accent); border-radius: 0; gap: 6mm; }
+    .avatar { width: 68px; height: 68px; border-width: 2px; box-shadow: 0 0 0 1.5pt var(--accent); }
+    .avatar-btn { animation: none; opacity: 1; transform: none; }
+    .header .name, .header .title, .contact-list { animation: none; opacity: 1; transform: none; }
+    .header .title .dot { animation: none; }
+
+    .card { border: 0; border-top: 0.8pt solid var(--border); border-radius: 0; padding: 3.5mm 0 0; box-shadow: none; }
+    .sidebar .card:first-child, .stack .card:first-child { border-top: 0; padding-top: 0; }
+
+    /* a tall card may flow across pages, but never split a single entry */
+    .card { break-inside: auto; }
+    .tl-item, .sys-group, .edu-item, .skill-group, .pub-card, .info-row, .lang-item {
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    h2.section-title, .eyebrow { break-after: avoid; page-break-after: avoid; }
+
+    .eyebrow { margin-bottom: 2mm; }
+    h2.section-title { margin-bottom: 2.5mm; }
+    .tl-item { padding-block: 2.5mm; }
+    .tl-item ul { gap: 1.2mm; padding-left: 4mm; }
+    .sys-group { padding-block: 2mm; }
+    .sys-list { gap: 1.2mm; }
+    .skill-group { margin-bottom: 2.5mm; }
+    .pill { padding: 1px 6px; border-radius: 4px; }
+    .pub-card { padding: 3mm; gap: 3mm; }
+    .edu-item { padding-block: 2mm; }
+    .info-row { padding-block: 1.2mm; }
+    .meter { display: none; }
+    footer { margin-top: 4mm; }
+
     a { text-decoration: none; color: inherit; }
+    .pub-link::after { content: " (" attr(href) ")"; font-size: var(--t-micro); color: var(--faint); }
   }
 </style>
 <script>
@@ -459,6 +528,16 @@
       <button id="btn-vi" class="active" onclick="setLang('vi')">VI · Tiếng Việt</button>
       <button id="btn-en" onclick="setLang('en')">EN · English</button>
     </div>
+    <button type="button" class="print-btn" id="print-btn"
+            data-vi-aria="In hoặc lưu CV thành PDF" data-en-aria="Print or save this CV as PDF">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 9V3.8h10V9"></path>
+        <path d="M7 18H5.2A2.2 2.2 0 0 1 3 15.8v-4.6A2.2 2.2 0 0 1 5.2 9h13.6A2.2 2.2 0 0 1 21 11.2v4.6A2.2 2.2 0 0 1 18.8 18H17"></path>
+        <rect x="7" y="14.5" width="10" height="5.7" rx="1"></rect>
+      </svg>
+      <span class="print-label i18n" data-vi="Tải PDF" data-en="Save PDF">Tải PDF</span>
+    </button>
     <button type="button" class="theme-btn" id="theme-btn" aria-pressed="false"
             data-vi-aria="Chuyển giao diện sáng / tối" data-en-aria="Toggle light / dark theme">
       <svg class="ic-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
@@ -749,6 +828,12 @@
       document.documentElement.setAttribute('data-theme', next);
       btn.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
       try { localStorage.setItem('cv-theme', next); } catch (e) {}
+    });
+  })();
+
+  (function initPrint() {
+    document.getElementById('print-btn').addEventListener('click', function () {
+      window.print();
     });
   })();
 
